@@ -1,218 +1,86 @@
-import {
-  Box,
-  Button,
-  Container,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  InputLeftElement,
-  Stack,
-  Text,
-  useDisclosure,
-  useToast,
-  Drawer,
-  DrawerBody,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  HStack,
-} from "@chakra-ui/react";
-import { FaUser, FaLock, FaBuilding, FaBars } from "react-icons/fa";
-import { useState, useRef } from "react";
+import { Box, List, ListItem, Heading, Text } from "@chakra-ui/react";
+import UniWaysNavbar from "./components/NavBar/NavBar"; 
 
-function LoginWithNavbar() {
-  const [empresa, setEmpresa] = useState("");
-  const [usuario, setUsuario] = useState("");
-  const [senha, setSenha] = useState("");
-  const toast = useToast();
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const btnRef = useRef(null);
 
+function App() {
   const user = {
     nome: "Gabriel",
     modulos: ["crm", "locadora", "consulta_sefaz"]
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-      title: "Login enviado",
-      description: `Empresa: ${empresa}, Usuário: ${usuario}`,
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-    });
-  };
-
   return (
-    <Box minH="100vh" bg="gray.100">
-      {/* Navbar com menus de módulo e drawer lateral */}
-      <Flex bg="gray.800" px={6} py={3} align="center" justify="space-between">
-        <HStack spacing={6} align="center">
-          <IconButton
-            ref={btnRef}
-            onClick={onOpen}
-            icon={<FaBars color="white" />} // ❯ deixa o ícone branco
-            aria-label="Abrir menu lateral"
-            variant="ghost"
-            _hover={{ bg: "gray.700" }}
-          />
+    <Box minH="100vh" bg="gray.100" display="flex" flexDirection="column">
+      {/* Navbar */}
+      <UniWaysNavbar user={user} />
 
-          <Heading as="h1" size="md" color="white">
-            UniWays
-          </Heading>
-
-          {/* Módulos visíveis na navbar */}
-          {user.modulos.includes("crm") && (
-            <Menu>
-              <MenuButton as={Button} size="sm" variant="ghost" color="white" _hover={{ bg: "gray.700" }}>
-                CRM
-              </MenuButton>
-              <MenuList>
-                <MenuItem>Pedidos</MenuItem>
-                <MenuItem>Importação</MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-
-          {user.modulos.includes("locadora") && (
-            <Menu>
-              <MenuButton as={Button} size="sm" variant="ghost" color="white" _hover={{ bg: "gray.700" }}>
-                Locação
-              </MenuButton>
-              <MenuList>
-                <MenuItem>Novo Pedido</MenuItem>
-                <MenuItem>Histórico de Pedidos</MenuItem>
-                <MenuItem>Orçamentos</MenuItem>
-                <MenuItem>Relatórios</MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-
-          {user.modulos.includes("consulta_sefaz") && (
-            <Menu>
-              <MenuButton as={Button} size="sm" variant="ghost" color="white" _hover={{ bg: "gray.700" }}>
-                Sefaz
-              </MenuButton>
-              <MenuList>
-                <MenuItem>Monitoramento</MenuItem>
-                <MenuItem>Parâmetros</MenuItem>
-              </MenuList>
-            </Menu>
-          )}
-        </HStack>
-
-        {/* Nome e sair */}
-        <HStack spacing={4}>
-          <Text color="white" fontWeight="bold">
-            {user.nome}
-          </Text>
-          <Button size="sm" variant="outline" colorScheme="red">
-            Sair
-          </Button>
-        </HStack>
-      </Flex>
-
-      {/* Drawer lateral apenas para opções gerais */}
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose} finalFocusRef={btnRef}>
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>Opções</DrawerHeader>
-          <DrawerBody>
-            <Stack spacing={4}>
-              <Button variant="ghost" w="full">Sobre o UniWays</Button>
-              <Button variant="ghost" w="full">Contato</Button>
-              <Button variant="ghost" w="full">Alterar senha</Button>
-              <Button variant="ghost" w="full">Cadastrar usuário</Button>
-              <Button variant="ghost" w="full">Gerenciar usuários</Button>
-              <Button variant="ghost" w="full">Parâmetros do Sistema</Button>
-            </Stack>
-          </DrawerBody>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Conteúdo Principal */}
-      <Flex align="center" justify="center" mt={12}>
+      {/* Main content */}
+      <Box as="main" p={2.5} display="flex" flexDirection="column" flex="1">
         <Box
           bg="white"
-          p={8}
-          borderRadius="lg"
+          p={4}
+          pt={10}
+          borderRadius="xl"
           boxShadow="lg"
           width="100%"
-          maxW="400px"
+          flex="1"
+          display="flex"
+          flexDirection="column"
+          alignItems="center" // Alinha os itens no centro horizontalmente
+          textAlign="center" // Alinha os itens no centro horizontalmente
+          justifyContent="flex-start" // Faz os elementos ficarem alinhados no topo
         >
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={5}>
-              <Heading
-                size="lg"
-                textAlign="center"
-                color="gray.700"
-                fontWeight="bold"
-              >
-                Login - UniWays
-              </Heading>
+          <Heading as="h2" size="xl" color="gray.800" mb={2}>
+            Bem vindo ao UniWays  
+          </Heading>
 
-              <FormControl isRequired>
-                <FormLabel>Sigla empresa</FormLabel>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <Icon as={FaBuilding} color="gray.500" />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="Ex: DAC"
-                    value={empresa}
-                    onChange={(e) => setEmpresa(e.target.value)}
-                  />
-                </InputGroup>
-              </FormControl>
+          <Text fontSize="md" color="gray.500" mb={6}>
+            A plataforma que facilita sua gestão!
+          </Text>
 
-              <FormControl isRequired>
-                <FormLabel>Usuário</FormLabel>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <Icon as={FaUser} color="gray.500" />
-                  </InputLeftElement>
-                  <Input
-                    placeholder="Digite seu usuário"
-                    value={usuario}
-                    onChange={(e) => setUsuario(e.target.value)}
-                  />
-                </InputGroup>
-              </FormControl>
+          <Box
+            bg="orange.400"
+            color="white"
+            fontSize="sm"
+            fontWeight="bold"
+            px={4}
+            py={1}
+            borderRadius="full"
+            mb={6}
+            display="inline-block"
+            transition="all 0.5s ease"
+            _hover={{
+              transform: "translateY(-3.5px)",
+              boxShadow: "1xl",
+            }}
+          >
+            🚀 Versão 0.9.1 Beta
+          </Box>
 
-              <FormControl isRequired>
-                <FormLabel>Senha</FormLabel>
-                <InputGroup>
-                  <InputLeftElement pointerEvents="none">
-                    <Icon as={FaLock} color="gray.500" />
-                  </InputLeftElement>
-                  <Input
-                    type="password"
-                    placeholder="Digite sua senha"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                  />
-                </InputGroup>
-              </FormControl>
+          <Box
+            bg="gray.50"
+            p={6}
+            borderRadius="lg"
+            maxW="600px"
+            textAlign="left"
+            boxShadow="md"
+            transition="all 0.5s ease"
+            _hover={{
+              transform: "translateY(-3.5px)",
+              boxShadow: "1xl",
+            }}
+          >
+            <Heading as="h3" size="md" mb={4}>
+              📢 Novidades da Versão 0.9.1 Beta
+            </Heading>
 
-              <Button type="submit" colorScheme="blue" w="full">
-                ENTRAR
-              </Button>
-            </Stack>
-          </form>
+            <List spacing={3}>
+              <ListItem>🆕 Todas as telas foram refeitas utilizando uma tecnologia mais moderna, responsiva e escalável.</ListItem>
+            </List>
+          </Box>
         </Box>
-      </Flex>
+      </Box>
     </Box>
   );
 }
 
-export default LoginWithNavbar;
+export default App;
