@@ -7,6 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Caso o cache esteja em subpastas:
+**/__pycache__/
+
 node_modules
 dist
 dist-ssr
