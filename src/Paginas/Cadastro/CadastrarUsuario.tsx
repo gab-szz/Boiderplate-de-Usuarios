@@ -8,18 +8,16 @@ import {
     Heading,
     VStack,
     useToast,
-    Table,
-    Thead,
-    Tbody,
-    Tr,
-    Th,
-    Td,
     Flex,
   } from "@chakra-ui/react";
   import { useState } from "react";
+  import { api } from "../../services/api";
+  import { useNavigate } from "react-router-dom";
   
   // Componente principal
   function CadastroUsuario() {
+    const navigate = useNavigate();
+
     // Estados para armazenar os dados do formulário
     const [nome, setNome] = useState("");
     const [login, setLogin] = useState("");
@@ -31,9 +29,6 @@ import {
      * Tipado como um array de objetos com nome, login, senha e perfil.
      * Isso simula um "banco de dados em memória".
      */
-    const [usuarios, setUsuarios] = useState<
-      { nome: string; login: string; senha: string; perfil: string }[]
-    >([]);
   
     // Toast é um aviso visual temporário (tipo alerta)
     const toast = useToast();
@@ -41,8 +36,7 @@ import {
     /**
      * Função chamada ao clicar em "Salvar Usuário"
      */
-    function handleSalvar() {
-      // Validação: impede cadastro se houver campos vazios
+    async function handleSalvar() {
       if (!nome || !login || !senha || !perfil) {
         toast({
           title: "Atenção.",
@@ -52,28 +46,36 @@ import {
         });
         return;
       }
-  
-      const novoUsuario = { nome, login, senha, perfil };
-  
-      /**
-       * Aqui usamos a versão funcional do setUsuarios:
-       * prevUsuarios é o valor atual do estado (React passa automaticamente).
-       * Criamos uma nova lista usando spread [...], garantindo imutabilidade.
-       */
-      setUsuarios((prevUsuarios) => [...prevUsuarios, novoUsuario]);
-  
-      // Mostra uma notificação de sucesso
-      toast({
-        title: "Usuário salvo com sucesso!",
-        status: "success",
-        isClosable: true,
-      });
-  
-      // Limpa os campos do formulário
-      setNome("");
-      setLogin("");
-      setSenha("");
-      setPerfil("");
+    
+      try {
+        await api.post("/usuarios/", {
+          nome,
+          login,
+          senha,
+          perfil
+        });
+    
+        toast({
+          title: "Usuário salvo com sucesso!",
+          status: "success",
+          isClosable: true,
+        });
+    
+        // limpa formulário
+        setNome("");
+        setLogin("");
+        setSenha("");
+        setPerfil("");
+    
+      } catch (erro: unknown) {
+        console.error("Erro no POST /usuarios/:", erro);
+        toast({
+          title: "Erro ao salvar.",
+          status: "error",
+          description: erro?.response?.data?.mensagem || "Erro desconhecido.",
+          isClosable: true,
+        });
+      }
     }
   
     return (
@@ -145,58 +147,20 @@ import {
               {/* Botão de salvar */}
               <Button
                 colorScheme="blue"
-                onClick={handleSalvar}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSalvar();
+                }}
                 width="full"
                 mt={4}
                 size="sm"
               >
                 Salvar Usuário
               </Button>
+              <Button colorScheme="gray" width="full" size="sm" onClick={() => navigate("/") }>
+                Voltar
+              </Button>
             </VStack>
-          </Box>
-  
-          {/* Tabela com usuários cadastrados */}
-          <Box
-            bg="white"
-            p={6}
-            borderRadius="xl"
-            boxShadow="lg"
-            width="100%"
-            maxW="600px"
-            overflowX="auto"
-          >
-            <Heading as="h2" size="lg" mb={6} textAlign="center" color="gray.700">
-              Usuários Cadastrados
-            </Heading>
-  
-            <Table size="sm" variant="striped" colorScheme="gray">
-              <Thead>
-                <Tr>
-                  <Th>Nome</Th>
-                  <Th>Login</Th>
-                  <Th>Perfil</Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {usuarios.length === 0 ? (
-                  // Caso não haja usuários, exibe mensagem
-                  <Tr>
-                    <Td colSpan={3} textAlign="center" color="gray.500">
-                      Nenhum usuário cadastrado ainda.
-                    </Td>
-                  </Tr>
-                ) : (
-                  // Caso haja, mapeia e renderiza cada linha
-                  usuarios.map((usuario, index) => (
-                    <Tr key={index}>
-                      <Td>{usuario.nome}</Td>
-                      <Td>{usuario.login}</Td>
-                      <Td>{usuario.perfil}</Td>
-                    </Tr>
-                  ))
-                )}
-              </Tbody>
-            </Table>
           </Box>
         </Flex>
       </Box>

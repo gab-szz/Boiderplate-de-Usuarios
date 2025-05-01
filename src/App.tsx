@@ -1,6 +1,8 @@
 //import { Box, List, ListItem, Heading, Text } from "@chakra-ui/react";
 //import UniWaysNavbar from "./components/NavBar/NavBar"; 
-import CadastroUsuario from "./Pages/CadastrarUsuario";
+import { RouterProvider } from "react-router-dom";
+//import CadastroUsuario from "./Pages/CadastrarUsuario";
+import { router } from "./Rotas/Router";
 
 
 function App() {
@@ -12,7 +14,7 @@ function App() {
   */
 
   return (
-    <CadastroUsuario/>
+    <RouterProvider router={router} />
   );
 }
 
