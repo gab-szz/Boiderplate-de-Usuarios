@@ -9,6 +9,7 @@ from starlette.requests import Request
 from app.schemas.shared.response import ResponseModel    
 from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
+from app.exceptions.regra_negocio import RegraNegocioException
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -52,6 +53,17 @@ async def db_integrity_error_handler(request: Request, exc: IntegrityError):
         ).model_dump()
     )
 
+
+@app.exception_handler(RegraNegocioException)
+async def regra_negocio_exception_handler(request: Request, exc: RegraNegocioException):
+    return JSONResponse(
+        status_code=200,  # você pode manter 200, pois é um "erro controlado"
+        content=ResponseModel(
+            status="error",
+            mensagem=exc.mensagem,
+            dados=None
+        ).model_dump()
+    )
 
 # Rotas
 app.include_router(usuario_router)

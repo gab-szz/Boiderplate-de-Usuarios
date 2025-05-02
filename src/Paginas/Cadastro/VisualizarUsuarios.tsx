@@ -19,7 +19,6 @@ import { useNavigate } from "react-router-dom";
 import { Usuario } from "../../types/Usuario";
 import { listarUsuarios, atualizarUsuario, excluirUsuario } from "../../services/usuarioService";
 import ModalEditarUsuario from "../../components/usuarios/ModalEditarUsuario";
-import { api } from "../../services/api";
 
 
 export function VisualizarUsuarios() {
