@@ -6,12 +6,6 @@ import { router } from "./Rotas/Router";
 
 
 function App() {
-  /*
-  const user = {
-    nome: "Gabriel",
-    modulos: ["crm", "locadora", "consulta_sefaz"]
-  };
-  */
 
   return (
     <RouterProvider router={router} />

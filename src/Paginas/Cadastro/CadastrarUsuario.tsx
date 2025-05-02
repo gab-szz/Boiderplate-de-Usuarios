@@ -13,7 +13,9 @@ import {
   import { useState } from "react";
   import { api } from "../../services/api";
   import { useNavigate } from "react-router-dom";
-  
+  import { mostrarToast } from "../../utils/toastUtils";
+  import { BotaoFormulario } from "../../components/ui/BotaoFormulario";
+
   // Componente principal
   function CadastroUsuario() {
     const navigate = useNavigate();
@@ -23,6 +25,9 @@ import {
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
     const [perfil, setPerfil] = useState("");
+
+    // Estado de carregando do botão
+    const [carregando, setCarregando] = useState(false);
   
     /**
      * Estado que armazena a lista de usuários cadastrados.
@@ -46,26 +51,30 @@ import {
         });
         return;
       }
+
+      setCarregando(true); // ⬅️ Início do carregamento
     
       try {
-        await api.post("/usuarios/", {
+        const resposta = await api.post("/usuarios/", {
           nome,
           login,
           senha,
           perfil
         });
+
+        console.log(resposta.data)
     
-        toast({
-          title: "Usuário salvo com sucesso!",
-          status: "success",
-          isClosable: true,
-        });
-    
-        // limpa formulário
-        setNome("");
-        setLogin("");
-        setSenha("");
-        setPerfil("");
+        const { status, mensagem } = resposta.data;
+
+        mostrarToast(toast, status, mensagem); // ⬅️ Usa função utilitária
+
+        if (status === "success") {
+          // limpa formulário
+          setNome("");
+          setLogin("");
+          setSenha("");
+          setPerfil("");
+        }
     
       } catch (erro: unknown) {
         console.error("Erro no POST /usuarios/:", erro);
@@ -75,8 +84,10 @@ import {
           description: erro?.response?.data?.mensagem || "Erro desconhecido.",
           isClosable: true,
         });
+      } finally {
+        setCarregando(false); // ⬅️ Fim do carregamento
       }
-    }
+    } 
   
     return (
       <Box minH="100vh" bg="gray.100" p={6}>
@@ -145,18 +156,13 @@ import {
               </FormControl>
   
               {/* Botão de salvar */}
-              <Button
-                colorScheme="blue"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSalvar();
-                }}
-                width="full"
-                mt={4}
-                size="sm"
+              <BotaoFormulario
+                onClick={handleSalvar}
+                isLoading={carregando}
               >
                 Salvar Usuário
-              </Button>
+              </BotaoFormulario>
+
               <Button colorScheme="gray" width="full" size="sm" onClick={() => navigate("/") }>
                 Voltar
               </Button>

@@ -24,6 +24,7 @@ export async function atualizarUsuario(
 /**
  * Remove um usuário com base no ID.
  */
-export async function excluirUsuario(id: number): Promise<void> {
-  await api.delete(`/usuarios/${id}`);
+export async function excluirUsuario(id: number) {
+  const resposta = await api.delete(`/usuarios/${id}`);
+  return resposta.data; // agora retorna { status, mensagem }
 }
