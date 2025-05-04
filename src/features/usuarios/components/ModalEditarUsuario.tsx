@@ -25,11 +25,11 @@ import {
    * - onAtualizar: função que será chamada ao clicar em "Salvar"
    */
   interface Props {
-    isOpen: boolean;
-    onClose: () => void;
+    modalAberto: boolean;
+    fecharModal: () => void;
     usuario: Usuario;
-    onAtualizar: (dados: Partial<Usuario>) => void | Promise<void>;
-  }
+    atualizarUsuario: (dados: Partial<Usuario>) => void | Promise<void>;
+  }  
   
   /**
    * Componente que representa o modal de edição de um usuário.
@@ -42,10 +42,10 @@ import {
    * @returns JSX do modal de edição
    */
   export function ModalEditarUsuario({
-    isOpen,
-    onClose,
+    modalAberto,
+    fecharModal,
     usuario,
-    onAtualizar,
+    atualizarUsuario,
   }: Props) {
     // Armazena os valores temporários enquanto o usuário edita os campos
     const [nome, setNome] = useState(usuario.nome);
@@ -61,12 +61,12 @@ import {
      */
     const handleSalvar = async () => {
       setSalvando(true);
-      await onAtualizar({ nome, login, perfil });
+      await atualizarUsuario({ nome, login, perfil });
       setSalvando(false);
     };
   
     return (
-      <Modal isOpen={isOpen} onClose={onClose} isCentered>
+      <Modal isOpen={modalAberto} onClose={fecharModal} isCentered>
         <ModalOverlay />
         <ModalContent>
           {/* Cabeçalho do modal */}
@@ -93,7 +93,7 @@ import {
   
           {/* Rodapé com botões de ação */}
           <ModalFooter>
-            <Button onClick={onClose} mr={3} variant="ghost">
+            <Button onClick={fecharModal} mr={3} variant="ghost">
               Cancelar
             </Button>
             <Button

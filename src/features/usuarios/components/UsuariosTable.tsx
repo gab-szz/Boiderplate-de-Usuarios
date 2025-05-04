@@ -1,6 +1,6 @@
 // src/features/usuarios/components/UsuariosTable.tsx
 
-import { Table, Thead, Tbody, Tr, Th, Td } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, Skeleton, Stack } from "@chakra-ui/react";
 import { Usuario } from "../types";
 import { UsuarioRow } from "./UsuarioRow";
 
@@ -18,7 +18,7 @@ interface Props {
   loading: boolean;
   sort: { coluna: keyof Usuario | null; direcao: "asc" | "desc" };
   onSort: (col: keyof Usuario) => void;
-  onEdit: (u: Usuario) => void;
+  onEdit: (usuario: Usuario) => void;
   onDelete: (id: number) => void;
 }
 
@@ -63,14 +63,26 @@ export function UsuariosTable({
       {/* Corpo da Tabela */}
       <Tbody>
         {loading ? (
-          // Mostra linhas vazias quando está carregando (placeholder)
           Array.from({ length: 3 }).map((_, i) => (
             <Tr key={i}>
-              <Td colSpan={4}>{/* Poderia ter um Skeleton aqui */}</Td>
+              <Td>
+                <Skeleton height="16px" width="80px" />
+              </Td>
+              <Td>
+                <Skeleton height="16px" width="100px" />
+              </Td>
+              <Td>
+                <Skeleton height="16px" width="60px" />
+              </Td>
+              <Td>
+                <Stack direction="row" spacing={2}>
+                  <Skeleton height="24px" width="50px" />
+                  <Skeleton height="24px" width="60px" />
+                </Stack>
+              </Td>
             </Tr>
           ))
         ) : (
-          // Renderiza cada usuário em uma linha separada
           usuarios.map((usuario) => (
             <UsuarioRow
               key={usuario.id}

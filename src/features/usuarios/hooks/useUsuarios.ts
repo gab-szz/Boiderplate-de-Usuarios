@@ -1,10 +1,9 @@
-// src/features/usuarios/hooks/useUsuarios.ts
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Usuario } from "../types";
 import {
-  listarUsuarios as apiListar,
-  atualizarUsuario as apiAtualizar,
-  excluirUsuario as apiExcluir,
+  listarUsuarios as apiListarUsuarios,
+  atualizarUsuario as apiAtualizarUsuarios,
+  excluirUsuario as apiExcluirUsuarios,
 } from "../services/usuarioService";
 
 /**
@@ -19,17 +18,17 @@ export function useUsuarios() {
   /**
    * Estado local com a lista de usuários trazida da API
    */
-  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [listaUsuarios, definirListaUsuarios] = useState<Usuario[]>([]);
 
   /**
    * Estado que indica se os dados ainda estão sendo carregados
    */
-  const [loading, setLoading] = useState(true);
+  const [carregando, definirCarregando] = useState(true);
 
   /**
    * Estado que controla qual coluna está sendo usada para ordenação e a direção
    */
-  const [sort, setSort] = useState<{
+  const [criterioOrdenacao, definirOrdenacao] = useState<{
     coluna: keyof Usuario | null;
     direcao: "asc" | "desc";
   }>({
@@ -41,10 +40,10 @@ export function useUsuarios() {
    * Passo 1 - useEffect: busca todos os usuários assim que o hook for montado
    */
   useEffect(() => {
-    apiListar()
-      .then((data) => setUsuarios(data))       // Preenche o estado com a resposta
-      .catch((err) => console.error(err))      // Se houver erro, apenas mostra no console
-      .finally(() => setLoading(false));       // Desativa o loading ao final
+    apiListarUsuarios()
+      .then((dados) => definirListaUsuarios(dados))        // Preenche o estado com a resposta
+      .catch((erro) => console.error(erro))                // Se houver erro, apenas mostra no console
+      .finally(() => definirCarregando(false));            // Desativa o loading ao final
   }, []);
 
   /**
@@ -52,37 +51,80 @@ export function useUsuarios() {
    * - Se clicar na mesma coluna, inverte a direção
    * - Se for uma nova coluna, começa com "asc"
    */
-  const ordenarPor = useCallback((col: keyof Usuario) => {
-    setSort(({ coluna, direcao }) => ({
-      coluna: col,
-      direcao: coluna === col && direcao === "asc" ? "desc" : "asc",
-    }));
-  }, []);
+  const mudarColunaOrdenacao = useCallback((novaColuna: keyof Usuario) => {
+    // ← A função recebe o nome da nova coluna clicada (ex: "nome", "login", etc)
+
+    definirOrdenacao((estadoAtual) => { // ← Aqui usamos a forma "funcional" do setState
+      //     Isso nos dá acesso ao valor atual da ordenação antes da mudança
+
+      const { coluna: colunaAtual, direcao: direcaoAtual } = estadoAtual; // ← Extrai do estado atual:
+      //     - colunaAtual → qual coluna está sendo usada atualmente
+      //     - direcaoAtual → "asc" ou "desc"
+
+      const novaDirecao =
+        novaColuna === colunaAtual && direcaoAtual === "asc" // ← Regra de alternância:
+          ? "desc"
+          : "asc";
+      //     - Se clicou na mesma coluna e ela já estava em ordem ascendente, então inverte para descendente ("desc")
+      //     - Caso contrário (coluna nova ou já estava "desc"), volta para "asc"
+
+      return {
+        coluna: novaColuna,       // ← Atualiza a coluna com a recém-clicada
+        direcao: novaDirecao,     // ← Usa a direção calculada acima
+      };
+    }); // ← Isso atualiza o estado com o novo critério de ordenação
+    
+  }, []); // ← O useCallback com dependências vazias evita recriar essa função em cada render
+  
+
+  
 
   /**
-   * Passo 3 - Memoiza uma nova lista de usuários já ordenada
-   * - Evita reordenação desnecessária se usuários ou sort não mudarem
+   * Passo 3 - Memoriza uma nova lista de usuários já ordenada
+   * - Evita reordenação desnecessária se listaUsuarios ou criterioOrdenacao não mudarem
    */
-  const usuariosOrdenados = useMemo(() => {
-    return [...usuarios].sort((a, b) => {
-      if (!sort.coluna) return 0;
+  const usuariosJaOrdenados = useMemo(() => {
+    // ← useMemo memoriza o resultado da função para evitar recalcular em toda renderização
+    // ← Só vai reexecutar a ordenação se listaUsuarios ou criterioOrdenacao mudarem
 
-      const va = a[sort.coluna];
-      const vb = b[sort.coluna];
+    return [...listaUsuarios].sort((usuarioA, usuarioB) => {
+      // ← Clona a lista original com spread operator para manter imutabilidade
+      // ← Em seguida, usa .sort() para ordenar os usuários com base na coluna escolhida
 
-      if (typeof va === "string" && typeof vb === "string") {
-        return sort.direcao === "asc"
-          ? va.localeCompare(vb)
-          : vb.localeCompare(va);
+      if (!criterioOrdenacao.coluna) return 0;
+      // ← Se nenhuma coluna foi selecionada para ordenação, não faz nada (retorna a lista como está)
+
+      const valorA = usuarioA[criterioOrdenacao.coluna];
+      const valorB = usuarioB[criterioOrdenacao.coluna];
+      // ← Acessa dinamicamente o valor da coluna escolhida em cada usuário
+      // ← Ex: se criterioOrdenacao.coluna for "nome", então faz usuarioA.nome e usuarioB.nome
+
+      if (typeof valorA === "string" && typeof valorB === "string") {
+        // ← Se os valores da coluna forem strings, faz ordenação alfabética
+
+        return criterioOrdenacao.direcao === "asc"
+          ? valorA.localeCompare(valorB)
+          : valorB.localeCompare(valorA);
+        // ← localeCompare compara strings com suporte a acentos e ordem local (ex: pt-BR)
+        // ← Se for ascendente, compara normal. Se for descendente, inverte a ordem
       }
 
-      if (typeof va === "number" && typeof vb === "number") {
-        return sort.direcao === "asc" ? va - vb : vb - va;
+      if (typeof valorA === "number" && typeof valorB === "number") {
+        // ← Se os valores forem numéricos, ordena com subtração simples
+
+        return criterioOrdenacao.direcao === "asc"
+          ? valorA - valorB
+          : valorB - valorA;
+        // ← Se for ascendente, menor vem primeiro. Se for descendente, maior vem primeiro
       }
 
       return 0;
+      // ← Se não for string nem number (ex: undefined ou outro tipo), mantém a ordem original
     });
-  }, [usuarios, sort]);
+  }, [listaUsuarios, criterioOrdenacao]);
+  // ← Dependências do useMemo:
+  // ← A ordenação só será recalculada se a lista de usuários ou o critério de ordenação mudar
+
 
   /**
    * Passo 4 - Excluir usuário
@@ -90,9 +132,11 @@ export function useUsuarios() {
    * 
    * @param id - ID do usuário a ser removido
    */
-  const excluir = useCallback(async (id: number) => {
-    await apiExcluir(id);
-    setUsuarios((prev) => prev.filter((u) => u.id !== id));
+  const excluirUsuario = useCallback(async (id: number) => {
+    await apiExcluirUsuarios(id);
+    definirListaUsuarios((usuariosAnteriores) =>
+      usuariosAnteriores.filter((usuario) => usuario.id !== id)
+    );
   }, []);
 
   /**
@@ -101,29 +145,32 @@ export function useUsuarios() {
    * - Substitui o item atualizado na lista local
    * 
    * @param id - ID do usuário
-   * @param dados - Campos parciais a serem atualizados
+   * @param dadosParciais - Campos parciais a serem atualizados
    * @returns {Usuario} o usuário atualizado
    */
-  const atualizar = useCallback(
-    async (id: number, dados: Partial<Usuario>) => {
-      const updated = await apiAtualizar(id, dados);
-      setUsuarios((prev) =>
-        prev.map((u) => (u.id === updated.id ? updated : u))
+  const atualizarUsuario = useCallback(
+    async (id: number, dadosParciais: Partial<Usuario>) => {
+      const usuarioAtualizado = await apiAtualizarUsuarios(id, dadosParciais);
+      definirListaUsuarios((usuariosAnteriores) =>
+        usuariosAnteriores.map((usuario) =>
+          usuario.id === usuarioAtualizado.id ? usuarioAtualizado : usuario
+        )
       );
-      return updated;
+      return usuarioAtualizado;
     },
     []
   );
+  
 
   /**
    * Exporta o que será usado no componente
    */
   return {
-    usuarios: usuariosOrdenados,
-    loading,
-    sort,
-    ordenarPor,
-    excluir,
-    atualizar,
+    usuarios: usuariosJaOrdenados,
+    loading: carregando,
+    sort: criterioOrdenacao,
+    ordenarPor: mudarColunaOrdenacao,
+    excluir: excluirUsuario,
+    atualizar: atualizarUsuario,
   };
 }

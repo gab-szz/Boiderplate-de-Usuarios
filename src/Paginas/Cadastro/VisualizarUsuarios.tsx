@@ -29,7 +29,12 @@ export default function VisualizarUsuariosPage() {
   const toast = useToast();
 
   // Controle do modal de edição (aberto ou fechado)
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: modalAberto,
+    onOpen: abrirModal,
+    onClose: fecharModal,
+  } = useDisclosure();
+  
 
   // Hook customizado que lida com a lógica de usuários (carregar, excluir, atualizar etc.)
   const { usuarios, loading, sort, ordenarPor, excluir, atualizar } =
@@ -41,9 +46,9 @@ export default function VisualizarUsuariosPage() {
   /**
    * Quando clica em "Editar", define o usuário atual e abre o modal.
    */
-  const handleEdit = (u: Usuario) => {
-    setEditing(u);
-    onOpen();
+  const handleEdit = (usuario: Usuario) => {
+    setEditing(usuario);
+    abrirModal();
   };
 
   /**
@@ -105,13 +110,13 @@ export default function VisualizarUsuariosPage() {
       {/* Modal de edição de usuário (só aparece se `editing` estiver preenchido) */}
       {editing && (
         <ModalEditarUsuario
-          isOpen={isOpen}
-          onClose={() => {
+          modalAberto={modalAberto}
+          fecharModal={() => {
             setEditing(null);
-            onClose();
+            fecharModal();
           }}
           usuario={editing}
-          onAtualizar={(dados) =>
+          atualizarUsuario={(dados) =>
             atualizar(editing.id, dados)
               .then((usuarioAtualizado) => {
                 toast({
@@ -120,7 +125,7 @@ export default function VisualizarUsuariosPage() {
                   isClosable: true,
                 });
                 setEditing(usuarioAtualizado); // 🔄 Atualiza o state com os novos dados
-                onClose(); // 🔒 Fecha o modal
+                fecharModal(); // 🔒 Fecha o modal
               })
               .catch((err) => {
                 toast({
