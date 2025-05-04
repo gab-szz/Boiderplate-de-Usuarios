@@ -112,6 +112,7 @@ export default function VisualizarUsuariosPage() {
   };
 
   return (
+    
     <Box minH="100vh" bg="gray.100" p={6}>
       <Flex justify="center">
         <Box
