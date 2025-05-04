@@ -62,18 +62,13 @@ export function UsuariosTable({
 
       {/* Corpo da Tabela */}
       <Tbody>
-        {loading ? (
+        {loading ? ( // ←←- se estiver carregando, mostra Skeleton
+
           Array.from({ length: 3 }).map((_, i) => (
             <Tr key={i}>
-              <Td>
-                <Skeleton height="16px" width="80px" />
-              </Td>
-              <Td>
-                <Skeleton height="16px" width="100px" />
-              </Td>
-              <Td>
-                <Skeleton height="16px" width="60px" />
-              </Td>
+              <Td><Skeleton height="16px" width="80px" /></Td>
+              <Td><Skeleton height="16px" width="100px" /></Td>
+              <Td><Skeleton height="16px" width="60px" /></Td>
               <Td>
                 <Stack direction="row" spacing={2}>
                   <Skeleton height="24px" width="50px" />
@@ -82,7 +77,12 @@ export function UsuariosTable({
               </Td>
             </Tr>
           ))
-        ) : (
+        ) : usuarios.length === 0 ? (
+          // ← Aqui passamos null como props para exibir a linha "Nenhum usuário encontrado"
+          <UsuarioRow usuario={null} onEdit={() => {}} onDelete={() => {}} />
+          
+        ) : ( // ←- se carregou e tem usuários
+
           usuarios.map((usuario) => (
             <UsuarioRow
               key={usuario.id}
