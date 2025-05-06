@@ -38,6 +38,8 @@ async def criar_usuario(db: AsyncSession,
     Retorna:
         UsuarioEntity: Entidade de domínio representando o usuário criado.
     """
+    
+    
     if not re.match(r"^[a-zA-Z0-9]{3,}\.[a-zA-Z0-9]{3,}$", dados.login):
         raise RegraNegocioException("O login deve conter um ponto e pelo menos 6 caracteres.")
     

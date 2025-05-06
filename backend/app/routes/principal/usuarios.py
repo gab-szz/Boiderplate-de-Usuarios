@@ -179,3 +179,18 @@ async def buscar_usuarios_filtrados(
         mensagem=None,
         dados=usuarios
     )
+
+
+@router.post("/login")
+async def login(dados: UsuarioLogin, db: AsyncSession = Depends(get_db)):
+    usuario = await buscar_por_login(db, dados.login)
+    if not usuario or not verificar_senha(dados.senha, usuario.senha):
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+
+    token = criar_token({"sub": usuario.login})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/usuarios/me")
+async def me(usuario_logado = Depends(get_current_user)):
+    return {"usuario": usuario_logado}
