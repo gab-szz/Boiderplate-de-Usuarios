@@ -11,6 +11,14 @@ function MenuUsuarios() {
           Menu de Usuários
         </Heading>
 
+        <Button colorScheme="blue" width="200px" onClick={() => navigate("/login")}>
+          Login
+        </Button>
+
+        <Button colorScheme="blue" width="200px" onClick={() => navigate("/protegido")}>
+          Verificar login
+        </Button>
+
         <Button colorScheme="blue" width="200px" onClick={() => navigate("/cadastro")}>
           Cadastrar Usuário
         </Button>

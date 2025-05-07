@@ -65,7 +65,8 @@ import {
               >
                 UniWays
               </Heading>
-  
+
+              {/* 
               <FormControl isRequired>
                 <FormLabel>Sigla empresa</FormLabel>
                 <InputGroup>
@@ -79,6 +80,7 @@ import {
                   />
                 </InputGroup>
               </FormControl>
+              */}
   
               <FormControl isRequired>
                 <FormLabel>Usuário</FormLabel>
