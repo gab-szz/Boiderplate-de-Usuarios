@@ -4,26 +4,31 @@ from app.schemas.principal.usuarios import UsuarioCreate, UsuarioUpdate
 from app.repositories.principal import usuarioRepository
 from app.entities.principal.usuarioEntity import UsuarioEntity
 from app.exceptions.regra_negocio import RegraNegocioException
+from app.auth.security import gerar_hash_senha
+from app.models.principal.usuarioModel import UsuarioModel
 
 
-def _to_entity(modelo) -> UsuarioEntity:
+def _to_entity(modelo: UsuarioModel
+               ) -> UsuarioEntity:
     """
-    Converte um modelo ORM para uma entidade de domínio.
+    Converte o modelo ORM (UsuarioModel) em uma entidade de domínio (UsuarioEntity).
 
-    Parâmetros:
-        modelo: Objeto ORM do usuário retornado pelo repositório.
+    Args:
+        modelo (UsuarioModel): Instância do SQLAlchemy com os dados do banco.
 
-    Retorna:
-        UsuarioEntity: Entidade de domínio com os campos mapeados.
+    Returns:
+        UsuarioEntity: Entidade de domínio contendo todos os dados do usuário.
     """
     return UsuarioEntity(
         id=modelo.id,
         nome=modelo.nome,
         login=modelo.login,
         perfil=modelo.perfil,
-        data_criacao=modelo.data_criacao,
+        email=modelo.email,
+        senha=modelo.senha,
+        ativo=modelo.ativo,
+        data_criacao=modelo.data_criacao
     )
-    
 
 async def criar_usuario(db: AsyncSession, 
                         dados: UsuarioCreate
@@ -42,6 +47,9 @@ async def criar_usuario(db: AsyncSession,
     
     if not re.match(r"^[a-zA-Z0-9]{3,}\.[a-zA-Z0-9]{3,}$", dados.login):
         raise RegraNegocioException("O login deve conter um ponto e pelo menos 6 caracteres.")
+    
+    # Gerar hash da senha antes de persistir
+    dados.senha = gerar_hash_senha(dados.senha)
     
     UsuarioModel = await usuarioRepository.criar_usuario(db, dados)
     return _to_entity(UsuarioModel)

@@ -34,3 +34,11 @@ class UsuarioUpdate(BaseModel):
     perfil: Optional[str] = Field(None, min_length=3)
     email: Optional[EmailStr] = None
     ativo: Optional[bool] = None
+
+
+class UsuarioLogin(BaseModel):
+    """
+    Schema para autenticação de usuário (login).
+    """
+    login: str = Field(..., min_length=4, description="Login do usuário.")
+    senha: str = Field(..., min_length=6, description="Senha do usuário.")

@@ -2,10 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from collections.abc import AsyncGenerator
 from app.database import SessionLocal
-from app.schemas.principal.usuarios import UsuarioCreate, UsuarioUpdate, UsuarioRead
+from app.schemas.principal.usuarios import UsuarioCreate, UsuarioLogin, UsuarioUpdate, UsuarioRead
 from app.services.principal import usuarioService
 from app.schemas.shared.response import ResponseModel
 from app.schemas.principal.filtros import ConsultaFiltradaRequest
+from app.auth.security import verificar_senha
+from app.auth.auth import criar_token
+from app.auth.dependencies import obter_usuario_atual
 
 router = APIRouter(
     prefix="/usuarios",
@@ -20,6 +23,49 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 # ------------------------------------------------------------------------- #
 #                              ENDPOINTS                                    #
 # ------------------------------------------------------------------------- #
+
+@router.post("/login")
+async def login(dados: UsuarioLogin, db: AsyncSession = Depends(get_db)):
+    """
+    Autentica um usuário com login e senha, e retorna um token JWT se válido.
+
+    ## Parâmetros
+    - `dados`: Objeto contendo o login e a senha informados pelo usuário.
+    - `db`: Sessão assíncrona do banco de dados.
+
+    ## Retorna
+    - `dict`: Dicionário contendo o `access_token` JWT e o tipo de token (`bearer`).
+
+    ## Erros
+    - `401 Unauthorized`: Se o login não for encontrado ou a senha estiver incorreta.
+    """
+    usuario = await usuarioService.buscar_usuarios_com_filtros(
+        db, [{"coluna": "login", "valor": dados.login, "filtro": "="}]
+    )
+
+    # Pode retornar uma lista de usuários, então valida o primeiro
+    usuario = usuario[0] if usuario else None
+
+    if not usuario or not verificar_senha(dados.senha, usuario.senha):
+        raise HTTPException(status_code=401, detail="Credenciais inválidas")
+
+    token = criar_token({"sub": usuario.login})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.get("/me")
+async def me(usuario_logado=Depends(obter_usuario_atual)):
+    """
+    Retorna os dados do usuário atualmente autenticado.
+
+    ## Parâmetros
+    - `usuario_logado`: Usuário autenticado, injetado automaticamente via `Depends`.
+
+    ## Retorna
+    - `dict`: Dicionário com os dados do usuário logado.
+    """
+    return {"usuario": usuario_logado}
+
 
 @router.post("/", response_model=ResponseModel[UsuarioRead])
 async def criar_usuario(
@@ -181,16 +227,3 @@ async def buscar_usuarios_filtrados(
     )
 
 
-@router.post("/login")
-async def login(dados: UsuarioLogin, db: AsyncSession = Depends(get_db)):
-    usuario = await buscar_por_login(db, dados.login)
-    if not usuario or not verificar_senha(dados.senha, usuario.senha):
-        raise HTTPException(status_code=401, detail="Credenciais inválidas")
-
-    token = criar_token({"sub": usuario.login})
-    return {"access_token": token, "token_type": "bearer"}
-
-
-@router.get("/usuarios/me")
-async def me(usuario_logado = Depends(get_current_user)):
-    return {"usuario": usuario_logado}
