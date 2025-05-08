@@ -24,33 +24,29 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 #                              ENDPOINTS                                    #
 # ------------------------------------------------------------------------- #
 
-@router.post("/login")
+
+@router.post("/login", response_model=ResponseModel[dict])
 async def login(dados: UsuarioLogin, db: AsyncSession = Depends(get_db)):
-    """
-    Autentica um usuário com login e senha, e retorna um token JWT se válido.
-
-    ## Parâmetros
-    - `dados`: Objeto contendo o login e a senha informados pelo usuário.
-    - `db`: Sessão assíncrona do banco de dados.
-
-    ## Retorna
-    - `dict`: Dicionário contendo o `access_token` JWT e o tipo de token (`bearer`).
-
-    ## Erros
-    - `401 Unauthorized`: Se o login não for encontrado ou a senha estiver incorreta.
-    """
     usuario = await usuarioService.buscar_usuarios_com_filtros(
         db, [{"coluna": "login", "valor": dados.login, "filtro": "="}]
     )
 
-    # Pode retornar uma lista de usuários, então valida o primeiro
     usuario = usuario[0] if usuario else None
 
     if not usuario or not verificar_senha(dados.senha, usuario.senha):
         raise HTTPException(status_code=401, detail="Credenciais inválidas")
 
     token = criar_token({"sub": usuario.login})
-    return {"access_token": token, "token_type": "bearer"}
+
+    return ResponseModel(
+        status="success",
+        mensagem="Login realizado com sucesso.",
+        dados={
+            "access_token": token,
+            "token_type": "bearer"
+        }
+    )
+
 
 
 @router.get("/me")

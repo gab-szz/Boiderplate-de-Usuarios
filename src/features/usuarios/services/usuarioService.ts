@@ -114,3 +114,31 @@ export async function adicionarUsuario(
     throw new Error(err.message || "Erro ao criar usuário");
   }
 }
+
+/**
+ * Tenta logar o usuário na API.
+ *
+ * @param usuario  - nome/login do usuário
+ * @param senha    - senha do usuário
+ * @returns        O objeto completo retornado pela API: { status, mensagem, dados? }
+ * @throws         Em caso de falha HTTP ou de rede
+ */
+export async function logarUsuario(
+  login: string,
+  senha: string
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<{ status: string; mensagem: string; dados?: any }> {
+  try {
+    const { data } = await api.post("/login", { login, senha });
+
+    console.log(data)
+    // aqui 'data.status' é 'success' ou 'error'
+    return data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Erro em logarUsuario:", err);
+    // Pode lançar para o componente tratar
+    throw err;
+  }
+}
+
