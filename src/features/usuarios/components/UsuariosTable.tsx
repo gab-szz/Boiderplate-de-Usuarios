@@ -42,7 +42,7 @@ export function UsuariosTable({
       <Thead>
         <Tr>
           {/* Gera dinamicamente as colunas "nome", "login" e "perfil" */}
-          {(["nome", "login", "perfil"] as (keyof Usuario)[]).map((coluna) => (
+          {(["id", "nome", "login", "perfil"] as (keyof Usuario)[]).map((coluna) => (
             <Th
               key={coluna}
               cursor="pointer"
@@ -66,6 +66,7 @@ export function UsuariosTable({
 
           Array.from({ length: 3 }).map((_, i) => (
             <Tr key={i}>
+              <Td><Skeleton height="16px" width="30px" /></Td>
               <Td><Skeleton height="16px" width="80px" /></Td>
               <Td><Skeleton height="16px" width="100px" /></Td>
               <Td><Skeleton height="16px" width="60px" /></Td>

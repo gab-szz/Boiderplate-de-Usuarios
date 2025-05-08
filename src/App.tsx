@@ -2,7 +2,7 @@
 //import UniWaysNavbar from "./components/NavBar/NavBar"; 
 import { RouterProvider } from "react-router-dom";
 //import CadastroUsuario from "./Pages/CadastrarUsuario";
-import { router } from "./Rotas/Router";
+import { router } from "./rotas/Router";
 
 
 function App() {

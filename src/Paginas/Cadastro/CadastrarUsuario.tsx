@@ -11,83 +11,83 @@ import {
     Flex,
   } from "@chakra-ui/react";
   import { useState } from "react";
-  import { api } from "../../services/api";
   import { useNavigate } from "react-router-dom";
   import { mostrarToast } from "../../utils/toastUtils";
   import { BotaoFormulario } from "../../components/ui/BotaoFormulario";
+import { adicionarUsuario } from "../../features/usuarios/services/usuarioService";
 
   // Componente principal
-  function CadastroUsuario() {
+  export function CadastroUsuario() {
     const navigate = useNavigate();
-
-    // Estados para armazenar os dados do formulário
+    const toast = useToast();
+  
     const [nome, setNome] = useState("");
     const [login, setLogin] = useState("");
     const [senha, setSenha] = useState("");
     const [perfil, setPerfil] = useState("");
-
-    // Estado de carregando do botão
+    const [email, setEmail] = useState("");
+  
     const [carregando, setCarregando] = useState(false);
   
     /**
-     * Estado que armazena a lista de usuários cadastrados.
-     * Tipado como um array de objetos com nome, login, senha e perfil.
-     * Isso simula um "banco de dados em memória".
-     */
-  
-    // Toast é um aviso visual temporário (tipo alerta)
-    const toast = useToast();
-  
-    /**
-     * Função chamada ao clicar em "Salvar Usuário"
+     * Dispara a criação de um novo usuário quando clica em Salvar.
      */
     async function handleSalvar() {
-      if (!nome || !login || !senha || !perfil) {
+      if (!nome || !login || !senha || !perfil || !email) {
         toast({
           title: "Atenção.",
           status: "warning",
-          description: `Preencha todos os campos.`,
+          description: "Preencha todos os campos.",
           isClosable: true,
         });
         return;
       }
-
-      setCarregando(true); // ⬅️ Início do carregamento
-    
+  
+      setCarregando(true);
       try {
-        const resposta = await api.post("/usuarios/", {
+        await adicionarUsuario({
           nome,
           login,
           senha,
-          perfil
+          perfil,
+          email,
         });
-
-        console.log(resposta.data)
-    
-        const { status, mensagem } = resposta.data;
-
-        mostrarToast(toast, status, mensagem); // ⬅️ Usa função utilitária
-
-        if (status === "success") {
-          // limpa formulário
-          setNome("");
-          setLogin("");
-          setSenha("");
-          setPerfil("");
+  
+        // Se chegou aqui, deu certo
+        mostrarToast(toast, "success", "Usuário criado com sucesso.");
+  
+        // limpa formulário
+        setNome("");
+        setLogin("");
+        setSenha("");
+        setPerfil("");
+        setEmail("");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        // Se a API retornou lista de erros de campo:
+        if (Array.isArray(err.errors)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          err.errors.forEach((e: any) =>
+            toast({
+              title: `Erro no campo ${e.campo}`,
+              status: "error",
+              description: e.mensagem,
+              isClosable: true,
+            })
+          );
+        } else {
+          // mensagem genérica
+          toast({
+            title: "Erro ao salvar.",
+            status: "error",
+            description: err.message || "Erro desconhecido.",
+            isClosable: true,
+          });
         }
-    
-      } catch (erro: unknown) {
-        console.error("Erro no POST /usuarios/:", erro);
-        toast({
-          title: "Erro ao salvar.",
-          status: "error",
-          description: erro?.response?.data?.mensagem || "Erro desconhecido.",
-          isClosable: true,
-        });
       } finally {
-        setCarregando(false); // ⬅️ Fim do carregamento
+        setCarregando(false);
       }
-    } 
+    }
   
     return (
       <Box minH="100vh" bg="gray.100" p={6}>
@@ -108,7 +108,7 @@ import {
             <VStack spacing={4} align="stretch">
               {/* Campo Nome */}
               <FormControl isRequired>
-                <FormLabel>Nome</FormLabel>
+                <FormLabel fontSize={"sm"}>Nome</FormLabel>
                 <Input
                   placeholder="Digite o nome completo"
                   value={nome}
@@ -119,7 +119,7 @@ import {
   
               {/* Campo Login */}
               <FormControl isRequired>
-                <FormLabel>Login</FormLabel>
+                <FormLabel fontSize={"sm"}>Login</FormLabel>
                 <Input
                   placeholder="Digite o login"
                   value={login}
@@ -127,10 +127,22 @@ import {
                   size="sm"
                 />
               </FormControl>
+
+              {/* Campo Login */}
+              <FormControl isRequired>
+                <FormLabel fontSize={"sm"}>Email</FormLabel>
+                <Input
+                  placeholder="Digite o email"
+                  type="email"
+                  value={email}
+                  onChange={(evento) => setEmail(evento.target.value)}
+                  size="sm"
+                />
+              </FormControl>
   
               {/* Campo Senha */}
               <FormControl isRequired>
-                <FormLabel>Senha</FormLabel>
+                <FormLabel fontSize={"sm"}>Senha</FormLabel>
                 <Input
                   type="password"
                   placeholder="Digite a senha"
@@ -142,7 +154,7 @@ import {
   
               {/* Campo Perfil (Select) */}
               <FormControl isRequired>
-                <FormLabel>Perfil</FormLabel>
+                <FormLabel fontSize={"sm"}>Perfil</FormLabel>
                 <Select
                   placeholder="Selecione um perfil"
                   value={perfil}

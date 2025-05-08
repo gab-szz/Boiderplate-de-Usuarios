@@ -1,109 +1,116 @@
-// src/features/usuarios/services/usuarioService.ts
+import axios from "axios";
 import { Usuario } from "../types";
 
-/**
- * URL base da API que lida com usuários.
- * Aqui usamos o backend local em desenvolvimento.
- */
 const API_URL = "http://localhost:8000/usuarios";
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { "Content-Type": "application/json" },
+});
 
 /**
  * Função para buscar todos os usuários cadastrados na API.
- * 
+ *
  * @returns {Promise<Usuario[]>} Uma lista com todos os usuários recebidos.
  * @throws {Error} Caso a resposta não esteja no formato esperado ou a requisição falhe.
  */
 export async function listarUsuarios(): Promise<Usuario[]> {
-  // Etapa 1: faz a requisição GET para a rota /usuarios
-  const response = await fetch(API_URL);
-
-  // Etapa 2: checa se a resposta está ok (status HTTP 200–299)
-  if (!response.ok) {
-    const text = await response.text();
-    console.error("Erro na resposta:", text);
+  try {
+    const { data } = await api.get("/");
+    if (!Array.isArray(data.dados)) {
+      console.error("Formato inesperado em listarUsuarios:", data);
+      throw new Error("A resposta da API não contém uma lista de usuários.");
+    }
+    return data.dados;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Erro em listarUsuarios:", err?.response?.data || err);
     throw new Error("Erro ao buscar usuários");
   }
-
-  // Etapa 3: verifica se o conteúdo é JSON (como esperamos)
-  const contentType = response.headers.get("content-type");
-  if (!contentType?.includes("application/json")) {
-    const text = await response.text();
-    console.error("Resposta não é JSON:", text);
-    throw new SyntaxError("Resposta inválida: não é JSON");
-  }
-
-  // Etapa 4: converte a resposta para JSON
-  const json = await response.json();
-
-  // Etapa 5: garante que o campo `dados` seja uma lista
-  if (!Array.isArray(json.dados)) {
-    console.error("Formato de dados inesperado:", json);
-    throw new Error("A resposta da API não contém uma lista de usuários.");
-  }
-
-  // Etapa 6: retorna somente o array de usuários
-  return json.dados;
 }
 
 /**
  * Atualiza um usuário na API a partir do seu ID.
- * 
- * @param id - ID do usuário a ser atualizado
- * @param dados - Campos que serão atualizados (parcial de `Usuario`)
- * @returns {Promise<Usuario>} O usuário atualizado retornado pela API
- * @throws {Error} Caso a resposta não esteja no formato esperado ou ocorra erro de requisição
+ *
+ * @param id      ID do usuário a ser atualizado
+ * @param dados   Parciais de `Usuario` com os campos que serão alterados
+ * @returns       O usuário atualizado
+ * @throws {Error} Caso a resposta não seja a esperada ou ocorra erro de requisição
  */
 export async function atualizarUsuario(
   id: number,
   dados: Partial<Usuario>
 ): Promise<Usuario> {
-  // Etapa 1: faz a requisição PUT para a rota /usuarios/:id com os dados atualizados
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(dados),
-  });
-
-  // Etapa 2: se houve erro de status, tenta extrair mensagem
-  if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error((error && error.mensagem) || "Erro ao atualizar usuário");
+  try {
+    const { data } = await api.put(`/${id}`, dados);
+    if (data.status !== "success" || typeof data.dados !== "object") {
+      console.error("Resposta inesperada em atualizarUsuario:", data);
+      throw new Error(data.mensagem || "Resposta inesperada ao atualizar usuário");
+    }
+    return data.dados;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Erro em atualizarUsuario:", err?.response?.data || err);
+    const msg = err.response?.data?.mensagem || "Erro ao atualizar usuário";
+    throw new Error(msg);
   }
-
-  // Etapa 3: extrai o corpo da resposta
-  const json = await response.json();
-
-  // Etapa 4: verifica se o campo `dados` é um objeto (esperado: o usuário atualizado)
-  if (!json.dados || typeof json.dados !== "object") {
-    console.error("Resposta inesperada no PUT /usuarios:", json);
-    throw new Error("Formato inesperado de resposta ao atualizar usuário");
-  }
-
-  // Etapa 5: retorna somente o objeto do usuário
-  return json.dados as Usuario;
 }
 
 /**
  * Exclui um usuário a partir do seu ID.
- * 
- * @param id - ID do usuário a ser removido
- * @returns {Promise<{ status: string; mensagem: string }>} Mensagem de sucesso da API
- * @throws {Error} Caso a exclusão falhe
+ *
+ * @param id      ID do usuário a ser removido
+ * @returns       O objeto de retorno completo da API (status, mensagem, dados)
+ * @throws {Error} Caso ocorra falha na exclusão
  */
 export async function excluirUsuario(
   id: number
-): Promise<{ status: string; mensagem: string }> {
-  // Etapa 1: faz a requisição DELETE para /usuarios/:id
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: "DELETE",
-  });
-
-  // Etapa 2: se houve erro, tenta extrair a mensagem de erro da API
-  if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error((error && error.mensagem) || "Erro ao excluir usuário");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+): Promise<{ status: string; mensagem: string; dados: any }> {
+  try {
+    const { data } = await api.delete(`/${id}`);
+    return data;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Erro em excluirUsuario:", err?.response?.data || err);
+    const msg = err.response?.data?.mensagem || "Erro ao excluir usuário";
+    throw new Error(msg);
   }
+}
 
-  // Etapa 3: retorna a confirmação de sucesso da exclusão
-  return response.json();
+/**
+ * Cria um novo usuário na API.
+ *
+ * @param dados   Parciais de `Usuario` contendo os campos para criação
+ * @returns       O usuário criado
+ * @throws {Error} Com a mensagem da API e, em `error.errors`, lista de erros de campo
+ */
+export async function adicionarUsuario(
+  dados: Partial<Usuario>
+): Promise<Usuario> {
+  try {
+    const { data } = await api.post("/", dados);
+
+    if (data.status !== "success" || typeof data.dados !== "object") {
+      // API devolveu status error ou formato inesperado
+      const e = new Error(data.mensagem || "Erro ao criar usuário");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (e as any).errors = data.dados; // lista de { campo, mensagem, tipo }
+      throw e;
+    }
+
+    return data.dados;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    console.error("Erro em adicionarUsuario:", err?.response?.data || err);
+    // Se vier erro da resposta HTTP
+    if (err.response?.data) {
+      const apiData = err.response.data;
+      const e = new Error(apiData.mensagem || "Erro ao criar usuário");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (e as any).errors = apiData.dados;
+      throw e;
+    }
+    throw new Error(err.message || "Erro ao criar usuário");
+  }
 }

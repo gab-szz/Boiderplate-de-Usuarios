@@ -12,7 +12,7 @@ interface Props {
 }
 
 // Converte a linha da tabela (<Tr>) para uma versão animada com framer-motion
-const MotionTr = motion(Tr);
+const MotionTr = motion.create(Tr);
 
 /**
  * Componente que representa **uma linha da tabela** para exibir os dados de um usuário.
@@ -36,9 +36,10 @@ export function UsuarioRow({ usuario, onEdit, onDelete }: Props) {
         </Td>
       ) : (
         <>
-          <Td>{usuario.nome}</Td>        {/* ← Nome */}
-          <Td>{usuario.login}</Td>       {/* ← Login */}
-          <Td>{usuario.perfil}</Td>      {/* ← Perfil */}
+          <Td>{usuario.id}</Td>
+          <Td>{usuario.nome}</Td>
+          <Td>{usuario.login}</Td>
+          <Td>{usuario.perfil}</Td>
           <Td>
             <Stack direction="row" spacing={2}>
               <Button
