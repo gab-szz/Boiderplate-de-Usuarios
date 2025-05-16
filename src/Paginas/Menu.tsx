@@ -15,7 +15,7 @@ function MenuUsuarios() {
           Login
         </Button>
 
-        <Button colorScheme="blue" width="200px" onClick={() => navigate("/protegido")}>
+        <Button colorScheme="blue" width="200px" onClick={() => navigate("/verificar-login")}>
           Verificar login
         </Button>
 

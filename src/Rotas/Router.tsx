@@ -3,6 +3,7 @@ import CadastroUsuario from "../paginas/Cadastro/CadastrarUsuario";
 import VisualizarUsuarios from "../paginas/Cadastro/VisualizarUsuarios";
 import MenuUsuarios from "../paginas/Menu";
 import Login from "../paginas/Login";
+import VerificarLogin from "../paginas/VerificarLogin";
 
 export const router = createBrowserRouter([
   {
@@ -19,10 +20,10 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login/>
+    element: <Login />
   },
   {
-    path: "/verificar login",
-    element: <VisualizarUsuarios />,
+    path: "/verificar-login",
+    element: <VerificarLogin />
   },
 ]);

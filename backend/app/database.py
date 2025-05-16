@@ -5,14 +5,14 @@ from sqlalchemy.orm import declarative_base
 DATABASE_URL = "sqlite+aiosqlite:///./usuarios.db"
 
 # Engine assíncrono
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=False)
 
 # Session assíncrona
 SessionLocal = async_sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
-    class_=AsyncSession
+    class_=AsyncSession,
 )
 
 # Base dos modelos

@@ -1,34 +1,48 @@
+// src/paginas/Login.tsx
 import {
-  Box, Button, Flex, FormControl, FormLabel,
-  Heading, Icon, Input, InputGroup, InputLeftElement,
-  Stack, Text, useToast
+  Box,
+  Button,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Stack,
+  Text,
+  useToast
 } from "@chakra-ui/react";
 import { FaUser, FaLock } from "react-icons/fa";
 import { useState } from "react";
-import { logarUsuario } from "../features/usuarios/services/usuarioService";
 import { useNavigate } from "react-router-dom";
-
+import { useSessaoUsuario } from "../context/SessaoUsuarioContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const toast = useToast();
+  const { login } = useSessaoUsuario();
+
   const [usuario, setUsuario] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!usuario || !senha) {
-      return toast({
+
+    if (!usuario.trim() || !senha.trim()) {
+      toast({
         title: "Preencha usuário e senha",
         status: "warning",
         isClosable: true,
       });
+      return;
     }
 
     setLoading(true);
     try {
-      const resposta = await logarUsuario(usuario, senha);
+      const resposta = await login(usuario, senha);
 
       if (resposta.status === "success") {
         toast({
@@ -37,9 +51,8 @@ export default function Login() {
           status: "success",
           isClosable: true,
         });
-        navigate("/"); // ou navigate("/", { replace: true });
+        navigate("/", { replace: true });
       } else {
-        // status === "error"
         toast({
           title: "Falha no login",
           description: resposta.mensagem,
