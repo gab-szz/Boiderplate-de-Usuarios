@@ -1,4 +1,4 @@
-# Boilerplate Nome do Projeto
+# Boilerplate de Usuários
 
 Um template simples com backend em FastAPI com autenticação e CRUD de usuários. O frontend em Typescript, React e Vite oferecem um menu com tela de login, verificar autenticação e CRUD de usuários. O objetivo é fornecer uma base simples para projetos futuros, removendo a necessidade de desenvolver essa base novamente.
 
