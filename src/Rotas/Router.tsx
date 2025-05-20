@@ -1,9 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
 import CadastroUsuario from "../paginas/Cadastro/CadastrarUsuario";
 import VisualizarUsuarios from "../paginas/Cadastro/VisualizarUsuarios";
-import MenuUsuarios from "../paginas/Menu";
-import Login from "../paginas/Login";
-import VerificarLogin from "../paginas/VerificarLogin";
+import MenuUsuarios from "../Paginas/Menu";
+import Login from "../Paginas/Autenticacao/Login";
+import VerificarLogin from "../Paginas/Autenticacao/VerificarLogin";
 
 export const router = createBrowserRouter([
   {

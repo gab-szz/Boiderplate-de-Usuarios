@@ -17,7 +17,7 @@ import {
 import { FaUser, FaLock } from "react-icons/fa";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSessaoUsuario } from "../context/SessaoUsuarioContext";
+import { useSessaoUsuario } from "../../context/SessaoUsuarioContext"
 
 export default function Login() {
   const navigate = useNavigate();
@@ -91,7 +91,7 @@ export default function Login() {
         <form onSubmit={handleSubmit}>
           <Stack spacing={5}>
             <Heading size="lg" textAlign="center" fontWeight="bold">
-              UniWays
+              Login
             </Heading>
 
             <FormControl isRequired>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Usuario } from "../types";
+import { Usuario } from "../../../types/Usuario";
 import {
   listarUsuarios as apiListarUsuarios,
   atualizarUsuario as apiAtualizarUsuarios,

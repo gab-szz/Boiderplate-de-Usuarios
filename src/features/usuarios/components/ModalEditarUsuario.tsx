@@ -14,8 +14,8 @@ import {
     Input,
     Stack,
   } from "@chakra-ui/react";
-  import { useState } from "react";
-  import { Usuario } from "../types";
+import { useState } from "react";
+import { Usuario } from "../../../types/Usuario";
   
   /**
    * Propriedades esperadas pelo Modal de edição de usuário:

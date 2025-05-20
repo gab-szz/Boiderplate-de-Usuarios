@@ -16,7 +16,7 @@ import { useUsuarios } from "../../features/usuarios/hooks/useUsuarios";
 import { UsuariosTable } from "../../features/usuarios/components/UsuariosTable";
 import { ModalEditarUsuario } from "../../features/usuarios/components/ModalEditarUsuario";
 import { FiltrosUsuarios } from "../../features/usuarios/components/FiltrosUsuarios";
-import { Usuario } from "../../features/usuarios/types";
+import { Usuario } from "../../types/Usuario";
 
 export default function VisualizarUsuariosPage() {
   // ← Hook do React Router para redirecionamento de página

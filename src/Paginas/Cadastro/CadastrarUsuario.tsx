@@ -13,19 +13,23 @@ import {
   import { useState } from "react";
   import { useNavigate } from "react-router-dom";
   import { mostrarToast } from "../../utils/toastUtils";
-  import { BotaoFormulario } from "../../components/ui/BotaoFormulario";
-import { adicionarUsuario } from "../../features/usuarios/services/usuarioService";
+  import { BotaoFormulario } from "../../components/UI/BotaoFormulario";
+  import { adicionarUsuario } from "../../features/usuarios/services/usuarioService";
+  import { Usuario } from "../../types/Usuario";
 
   // Componente principal
   export function CadastroUsuario() {
     const navigate = useNavigate();
     const toast = useToast();
   
-    const [nome, setNome] = useState("");
-    const [login, setLogin] = useState("");
-    const [senha, setSenha] = useState("");
-    const [perfil, setPerfil] = useState("");
-    const [email, setEmail] = useState("");
+    const [usuario, setUsuario] = useState<Usuario>({
+      nome: "",
+      login: "",
+      senha: "",
+      perfil: "",
+      email: "",
+    });
+
   
     const [carregando, setCarregando] = useState(false);
   
@@ -33,6 +37,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
      * Dispara a criação de um novo usuário quando clica em Salvar.
      */
     async function handleSalvar() {
+      const { nome, login, senha, perfil, email } = usuario;
+
       if (!nome || !login || !senha || !perfil || !email) {
         toast({
           title: "Atenção.",
@@ -45,23 +51,19 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
   
       setCarregando(true);
       try {
-        await adicionarUsuario({
-          nome,
-          login,
-          senha,
-          perfil,
-          email,
-        });
+        await adicionarUsuario(usuario);
   
         // Se chegou aqui, deu certo
         mostrarToast(toast, "success", "Usuário criado com sucesso.");
   
         // limpa formulário
-        setNome("");
-        setLogin("");
-        setSenha("");
-        setPerfil("");
-        setEmail("");
+        setUsuario({
+          nome: "",
+          login: "",
+          senha: "",
+          perfil: "",
+          email: "",
+        });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         // Se a API retornou lista de erros de campo:
@@ -111,8 +113,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
                 <FormLabel fontSize={"sm"}>Nome</FormLabel>
                 <Input
                   placeholder="Digite o nome completo"
-                  value={nome}
-                  onChange={(evento) => setNome(evento.target.value)}
+                  value={usuario.nome}
+                  onChange={(evento) => setUsuario({ ...usuario, nome: evento.target.value })}
                   size="sm"
                 />
               </FormControl>
@@ -122,8 +124,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
                 <FormLabel fontSize={"sm"}>Login</FormLabel>
                 <Input
                   placeholder="Digite o login"
-                  value={login}
-                  onChange={(evento) => setLogin(evento.target.value)}
+                  value={usuario.login}
+                  onChange={(evento) => setUsuario({ ...usuario, login: evento.target.value })}
                   size="sm"
                 />
               </FormControl>
@@ -134,8 +136,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
                 <Input
                   placeholder="Digite o email"
                   type="email"
-                  value={email}
-                  onChange={(evento) => setEmail(evento.target.value)}
+                  value={usuario.email}
+                  onChange={(evento) => setUsuario({ ...usuario, email: evento.target.value })}
                   size="sm"
                 />
               </FormControl>
@@ -146,8 +148,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
                 <Input
                   type="password"
                   placeholder="Digite a senha"
-                  value={senha}
-                  onChange={(evento) => setSenha(evento.target.value)}
+                  value={usuario.senha}
+                  onChange={(evento) => setUsuario({ ...usuario, senha: evento.target.value })}
                   size="sm"
                 />
               </FormControl>
@@ -157,8 +159,8 @@ import { adicionarUsuario } from "../../features/usuarios/services/usuarioServic
                 <FormLabel fontSize={"sm"}>Perfil</FormLabel>
                 <Select
                   placeholder="Selecione um perfil"
-                  value={perfil}
-                  onChange={(evento) => setPerfil(evento.target.value)}
+                  value={usuario.perfil}
+                  onChange={(evento) => setUsuario({ ...usuario, perfil: evento.target.value })}
                   size="sm"
                 >
                   <option value="admin">Administrador</option>

@@ -20,7 +20,7 @@ import { api } from "../services/api";
 /**
  * Representa os dados básicos do usuário extraídos do token JWT.
  */
-export type Usuario = {
+export type UsuarioSessao = {
   /** Identificador único (sub do token) */
   sub: string;
   /** Timestamp opcional de expiração (em segundos) */
@@ -32,7 +32,7 @@ export type Usuario = {
  */
 export type SessaoUsuarioContextType = {
   /** Objeto de usuário, ou null se não autenticado */
-  usuario: Usuario | null;
+  usuario: UsuarioSessao | null;
   /** Indica se o usuário está logado */
   usuarioEstaLogado: boolean;
   /**
@@ -55,7 +55,7 @@ export type SessaoUsuarioContextType = {
    */
   validarSessao: () =>
     Promise<
-      { status: "ok"; dados: Usuario } | { status: "erro" }
+      { status: "ok"; dados: UsuarioSessao } | { status: "erro" }
     >;
 };
 
@@ -79,7 +79,7 @@ export const useSessaoUsuario = (): SessaoUsuarioContextType => {
  */
 export const SessaoUsuarioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // 2. Estado local: usuário e flag de login
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [usuario, setUsuario] = useState<UsuarioSessao | null>(null);
   const [usuarioEstaLogado, setUsuarioEstaLogado] = useState<boolean>(
     // Verifica se já existe token no sessionStorage
     Boolean(sessionStorage.getItem("access_token"))
@@ -134,14 +134,14 @@ export const SessaoUsuarioProvider: React.FC<{ children: React.ReactNode }> = ({
     async () => {
       try {
         const resposta = await api.get("/usuarios/me");
-        const dadosUsuario: Usuario = resposta.data.usuario;
+        const dadosUsuario: UsuarioSessao = resposta.data.usuario;
 
         setUsuario(dadosUsuario);
         setUsuarioEstaLogado(true);
 
         return { status: "ok", dados: dadosUsuario };
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
+        
+      } catch {
         // Se o token for inválido ou expirado, faz logout
         logout();
         return { status: "erro" };

@@ -1,18 +1,19 @@
 // src/features/usuarios/components/UsuariosTable.tsx
 
-import { Table, Thead, Tbody, Tr, Th, Td, Skeleton, Stack } from "@chakra-ui/react";
-import { Usuario } from "../types";
+import React from "react";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  Skeleton,
+  Stack,
+} from "@chakra-ui/react";
+import { Usuario } from "../../../types/Usuario";
 import { UsuarioRow } from "./UsuarioRow";
 
-/**
- * Props esperadas pelo componente de tabela:
- * - `usuarios`: lista de objetos do tipo Usuario para exibir
- * - `loading`: indica se os dados ainda estão sendo carregados
- * - `sort`: contém qual coluna está sendo ordenada e a direção (asc/desc)
- * - `onSort`: função para alterar a ordenação ao clicar no cabeçalho
- * - `onEdit`: função disparada ao clicar no botão "Editar"
- * - `onDelete`: função disparada ao clicar no botão "Excluir"
- */
 interface Props {
   usuarios: Usuario[];
   loading: boolean;
@@ -23,10 +24,11 @@ interface Props {
 }
 
 /**
- * Componente de tabela reutilizável para exibir usuários em uma interface
- *
- * @param props - dados e ações da tabela (usuários, ordenação, eventos)
- * @returns JSX da tabela renderizada
+ * Componente de tabela de Usuários que:
+ * - Exibe cabeçalho clicável para ordenação
+ * - Mostra Skeletons enquanto carrega
+ * - Mostra uma linha de “nenhum usuário” se estiver vazio
+ * - Renderiza cada linha via <UsuarioRow> com animação
  */
 export function UsuariosTable({
   usuarios,
@@ -36,58 +38,65 @@ export function UsuariosTable({
   onEdit,
   onDelete,
 }: Props) {
+  // Definimos as colunas que vamos ordenar/exibir no cabeçalho:
+  const colunas: (keyof Usuario)[] = ["id", "nome", "login", "perfil"];
+
   return (
     <Table size="sm" variant="striped">
-      {/* Cabeçalho da Tabela */}
+      {/* Cabeçalho */}
       <Thead>
         <Tr>
-          {/* Gera dinamicamente as colunas "nome", "login" e "perfil" */}
-          {(["id", "nome", "login", "perfil"] as (keyof Usuario)[]).map((coluna) => (
+          {colunas.map((col) => (
             <Th
-              key={coluna}
+              key={col}
               cursor="pointer"
-              onClick={() => onSort(coluna)} // dispara ordenação ao clicar
+              onClick={() => onSort(col)}
+              textTransform="uppercase"
+              fontSize="xs"
             >
-              {coluna.toUpperCase()}{" "}
-              {sort.coluna === coluna
-                ? sort.direcao === "asc"
-                  ? "▲"
-                  : "▼"
-                : ""}
+              {col}
+              {sort.coluna === col &&
+                (sort.direcao === "asc" ? " ▲" : " ▼")}
             </Th>
           ))}
-          <Th>Ações</Th>
+          <Th textAlign="center" fontSize="xs">
+            Ações
+          </Th>
         </Tr>
       </Thead>
 
-      {/* Corpo da Tabela */}
+      {/* Corpo */}
       <Tbody>
-        {loading ? ( // ←←- se estiver carregando, mostra Skeleton
-
+        {loading ? (
+          // 3 linhas de skeleton enquanto carrega
           Array.from({ length: 3 }).map((_, i) => (
             <Tr key={i}>
-              <Td><Skeleton height="16px" width="30px" /></Td>
-              <Td><Skeleton height="16px" width="80px" /></Td>
-              <Td><Skeleton height="16px" width="100px" /></Td>
-              <Td><Skeleton height="16px" width="60px" /></Td>
+              {colunas.map((_, j) => (
+                <Td key={j}>
+                  <Skeleton height="16px" />
+                </Td>
+              ))}
               <Td>
                 <Stack direction="row" spacing={2}>
                   <Skeleton height="24px" width="50px" />
-                  <Skeleton height="24px" width="60px" />
+                  <Skeleton height="24px" width="50px" />
                 </Stack>
               </Td>
             </Tr>
           ))
         ) : usuarios.length === 0 ? (
-          // ← Aqui passamos null como props para exibir a linha "Nenhum usuário encontrado"
-          <UsuarioRow usuario={null} onEdit={() => {}} onDelete={() => {}} />
-          
-        ) : ( // ←- se carregou e tem usuários
-
-          usuarios.map((usuario) => (
+          // Linha "nenhum usuário"
+          <UsuarioRow
+            usuario={null}
+            onEdit={() => {}}
+            onDelete={() => {}}
+          />
+        ) : (
+          // Uma linha animada para cada usuário
+          usuarios.map((u) => (
             <UsuarioRow
-              key={usuario.id}
-              usuario={usuario}
+              key={u.id}
+              usuario={u}
               onEdit={onEdit}
               onDelete={onDelete}
             />
