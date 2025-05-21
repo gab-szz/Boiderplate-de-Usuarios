@@ -15,6 +15,7 @@ from app.exceptions.regra_negocio import RegraNegocioException
 from app.database import Base, engine
 from app.models.principal.usuarioModel import UsuarioModel  # apenas para registrar o modelo
 from app.routes.principal.usuarios import router as usuario_router
+from app.routes.principal.perfis import router as perfil_router
 from app.utils.fastLog import log
 
 log.info("Iniciando aplicação")
@@ -166,5 +167,6 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # Registro das rotas (endpoints)
 # -------------------------------------------------------------------
 app.include_router(usuario_router)
+app.include_router(perfil_router)
 
 log.info("Aplicação Iniciada!")

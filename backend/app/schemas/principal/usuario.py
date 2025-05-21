@@ -10,9 +10,11 @@ class UsuarioBase(BaseModel):
     email: EmailStr
     ativo: bool = True  # ← padrão é ativo ao criar
 
+
 # Para criar: herda base + senha obrigatória
 class UsuarioCreate(UsuarioBase):
     senha: str = Field(..., min_length=6)
+
 
 # Para ler/retornar: inclui id e data
 class UsuarioRead(BaseModel):
@@ -25,6 +27,7 @@ class UsuarioRead(BaseModel):
     data_criacao: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
 
 # Para editar: todos opcionais
 class UsuarioUpdate(BaseModel):

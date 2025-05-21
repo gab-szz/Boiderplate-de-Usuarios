@@ -1,19 +1,27 @@
+# Importações Externas
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from collections.abc import AsyncGenerator
+
+# Importações Internas
 from app.database import SessionLocal
-from app.schemas.principal.usuarios import UsuarioCreate, UsuarioLogin, UsuarioUpdate, UsuarioRead
 from app.services.principal import usuarioService
+
+from app.schemas.principal.usuario import UsuarioCreate, UsuarioLogin, UsuarioUpdate, UsuarioRead
+from app.schemas.principal.filtro import ConsultaFiltradaRequest
 from app.schemas.shared.response import ResponseModel
-from app.schemas.principal.filtros import ConsultaFiltradaRequest
+
 from app.auth.security import verificar_senha
 from app.auth.auth import criar_token
 from app.auth.dependencies import obter_usuario_atual
 
+
+# Rota
 router = APIRouter(
     prefix="/usuarios",
     tags=["Usuários"]
 )
+
 
 # Dependência de sessão assíncrona
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -27,7 +35,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 @router.post("/login", response_model=ResponseModel[dict])
 async def login(dados: UsuarioLogin, db: AsyncSession = Depends(get_db)):
-    usuario = await usuarioService.buscar_usuarios_com_filtros(
+    usuario = await usuarioService.buscar_com_filtros(
         db, [{"coluna": "login", "valor": dados.login, "filtro": "="}]
     )
 
@@ -78,7 +86,7 @@ async def criar_usuario(
     ## Retorna
     - `ResponseModel[UsuarioRead]`: Dados do usuário criado, status da operação e mensagem.
     """
-    usuario = await usuarioService.criar_usuario(db, dados)
+    usuario = await usuarioService.criar(db, dados)
     return ResponseModel(
         status="success",
         mensagem="Usuário criado com sucesso.",
@@ -97,7 +105,7 @@ async def listar_usuarios(db: AsyncSession = Depends(get_db)) -> ResponseModel[l
     ## Retorna
     - `ResponseModel[list[UsuarioRead]]`: Lista de usuários cadastrados.
     """
-    usuarios = await usuarioService.listar_usuarios(db)
+    usuarios = await usuarioService.listar(db)
     return ResponseModel(
         status="success",
         mensagem=None,
@@ -120,7 +128,7 @@ async def buscar_usuario(
     ## Retorna
     - `ResponseModel[UsuarioRead]`: Dados do usuário encontrado, ou 404 se não existir.
     """
-    usuario = await usuarioService.buscar_usuario(db, usuario_id)
+    usuario = await usuarioService.buscar(db, usuario_id)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return ResponseModel(
@@ -147,7 +155,7 @@ async def atualizar_usuario(
     ## Retorna
     - `ResponseModel[UsuarioRead]`: Usuário atualizado ou 404 se não encontrado.
     """
-    usuario = await usuarioService.atualizar_usuario(db, usuario_id, dados)
+    usuario = await usuarioService.atualizar(db, usuario_id, dados)
     if not usuario:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return ResponseModel(
@@ -172,7 +180,7 @@ async def remover_usuario(
     ## Retorna
     - `ResponseModel[dict]`: Mensagem de sucesso ou 404 se o usuário não existir.
     """
-    sucesso = await usuarioService.remover_usuario(db, usuario_id)
+    sucesso = await usuarioService.remover(db, usuario_id)
     if not sucesso:
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return ResponseModel(
@@ -207,7 +215,7 @@ async def buscar_usuarios_filtrados(
     filtros_dict = [filtro.model_dump() for filtro in filtros_objetos] if filtros_objetos else None
 
     # Passo 3: Chamar o service, repassando os dados transformados e os demais parâmetros
-    usuarios = await usuarioService.buscar_usuarios_com_filtros(
+    usuarios = await usuarioService.buscar_com_filtros(
         db=db,
         filtros=filtros_dict,
         ordenacao=dados.ordenacao,

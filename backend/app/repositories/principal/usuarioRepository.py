@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from app.models.principal.usuarioModel import UsuarioModel
-from app.schemas.principal.usuarios import UsuarioCreate, UsuarioUpdate
+from backend.app.schemas.principal.usuario import UsuarioCreate, UsuarioUpdate
 from app.repositories.generic import consulta_filtrada
 
 

@@ -1,6 +1,6 @@
 import re
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.schemas.principal.usuarios import UsuarioCreate, UsuarioUpdate
+from app.schemas.principal.usuario import UsuarioCreate, UsuarioUpdate
 from app.repositories.principal import usuarioRepository
 from app.entities.principal.usuarioEntity import UsuarioEntity
 from app.exceptions.regra_negocio import RegraNegocioException
@@ -30,7 +30,7 @@ def _to_entity(modelo: UsuarioModel
         data_criacao=modelo.data_criacao
     )
 
-async def criar_usuario(db: AsyncSession, 
+async def criar(db: AsyncSession, 
                         dados: UsuarioCreate
                         ) -> UsuarioEntity:
     """
@@ -55,7 +55,7 @@ async def criar_usuario(db: AsyncSession,
     return _to_entity(UsuarioModel)
 
 
-async def buscar_usuario_pela_id(db: AsyncSession, 
+async def buscar_pela_id(db: AsyncSession, 
                          usuario_id: int) -> UsuarioEntity | None:
     """
     Busca um usuário pelo seu ID.
@@ -71,7 +71,7 @@ async def buscar_usuario_pela_id(db: AsyncSession,
     return _to_entity(model) if model else None
 
 
-async def listar_usuarios(db: AsyncSession
+async def listar(db: AsyncSession
                           ) -> list[UsuarioEntity]:
     """
     Lista todos os usuários cadastrados.
@@ -86,7 +86,7 @@ async def listar_usuarios(db: AsyncSession
     return [_to_entity(usuario) for usuario in usuarios_model]
 
 
-async def buscar_usuarios_com_filtros(db: AsyncSession, 
+async def buscar_com_filtros(db: AsyncSession, 
                                       filtros: list[dict[str, object]] | list[list] | None = None,
                                       ordenacao: list[str] | None = None,
                                       colunas: list[str] | None = None,
@@ -106,7 +106,7 @@ async def buscar_usuarios_com_filtros(db: AsyncSession,
     return [_to_entity(usuario) for usuario in usuarios_model]
 
 
-async def atualizar_usuario(db: AsyncSession, 
+async def atualizar(db: AsyncSession, 
                             usuario_id: int, 
                             dados: UsuarioUpdate) -> UsuarioEntity | None:
     """
@@ -124,7 +124,7 @@ async def atualizar_usuario(db: AsyncSession,
     return _to_entity(usuarioModelo) if usuarioModelo else None
 
 
-async def remover_usuario(db: AsyncSession, usuario_id: int) -> bool:
+async def remover(db: AsyncSession, usuario_id: int) -> bool:
     """
     Remove um usuário do banco de dados.
 
