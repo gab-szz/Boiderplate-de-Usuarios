@@ -1,3 +1,4 @@
+import traceback
 from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
@@ -37,7 +38,7 @@ app = FastAPI(lifespan=lifespan)
 # -------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # ajuste conforme necessário
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],  # ajuste conforme necessário
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -154,6 +155,8 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     """
     Captura quaisquer exceções não tratadas explicitamente acima.
     """
+    log.error("Erro interno não tratado:\n" + "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
+
     return JSONResponse(
         status_code=500,
         content=ResponseModel(
