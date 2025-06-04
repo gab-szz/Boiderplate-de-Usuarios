@@ -106,9 +106,12 @@ async def listar_usuarios(db: AsyncSession = Depends(get_db)) -> ResponseModel[l
     - `ResponseModel[list[UsuarioRead]]`: Lista de usuários cadastrados.
     """
     usuarios = await usuarioService.listar(db)
+    
+    mensagem = "Usuários consultados com sucesso!" if usuarios else "Nenhum usuário encontrado."
+    
     return ResponseModel(
         status="success",
-        mensagem=None,
+        mensagem=mensagem,
         dados=usuarios
     )
 

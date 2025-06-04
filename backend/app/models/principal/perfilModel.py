@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, Boolean
 from datetime import datetime, timezone
 from app.database import Base
 from sqlalchemy.orm import relationship
+from app.models.principal.perfilpermissaoModel import perfilpermissaoModel
 
 class perfilModel(Base):
     __tablename__ = "perfil"
@@ -11,7 +12,7 @@ class perfilModel(Base):
     descricao = Column(String, nullable=False)
 
     permissoes = relationship(
-        "perfilpermissaoModel",
+        perfilpermissaoModel,
         back_populates="perfil",
         cascade="all, delete-orphan"
     )

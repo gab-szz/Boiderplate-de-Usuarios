@@ -55,7 +55,7 @@ export type SessaoUsuarioContextType = {
    */
   validarSessao: () =>
     Promise<
-      { status: "ok"; dados: UsuarioSessao } | { status: "erro" }
+      { status: "success"; dados: UsuarioSessao } | { status: "erro" }
     >;
 };
 
@@ -139,12 +139,12 @@ export const SessaoUsuarioProvider: React.FC<{ children: React.ReactNode }> = ({
         setUsuario(dadosUsuario);
         setUsuarioEstaLogado(true);
 
-        return { status: "ok", dados: dadosUsuario };
+        return { status: "success", dados: dadosUsuario } as const;
         
       } catch {
         // Se o token for inválido ou expirado, faz logout
         logout();
-        return { status: "erro" };
+        return { status: "erro" } as const;
       }
     },
     [logout]

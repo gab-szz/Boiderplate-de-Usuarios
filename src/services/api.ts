@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "http://localhost:8000", // ajuste se necessário
+  baseURL: "http://localhost:8194", // ajuste se necessário
 });
 
 // Adiciona o token automaticamente em todas as requisições

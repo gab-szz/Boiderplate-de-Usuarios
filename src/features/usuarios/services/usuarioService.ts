@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Usuario } from "../../../types/Usuario";
 
-const API_URL = "http://localhost:8000/usuarios";
+const API_URL = "http://localhost:8194/usuarios";
 
 const api = axios.create({
   baseURL: API_URL,

@@ -15,11 +15,16 @@ from app.exceptions.regra_negocio import RegraNegocioException
 # Banco de dados
 from app.database import Base, engine
 from app.models.principal.usuarioModel import UsuarioModel  # apenas para registrar o modelo
+from app.models.principal.perfilModel import perfilModel
+from app.models.principal.permissaoModel import permissaoModel
+from app.models.principal.perfilpermissaoModel import perfilpermissaoModel
+
+
+# Rotas
 from app.routes.principal.usuarios import router as usuario_router
 from app.routes.principal.perfis import router as perfil_router
-from app.utils.fastLog import log
 
-log.info("Iniciando aplicação")
+#log.info("Iniciando aplicação")
 
 # -------------------------------------------------------------------
 # Ciclo de vida da aplicação (lifespan): criar e dropar tabelas etc.
@@ -28,6 +33,7 @@ log.info("Iniciando aplicação")
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        print("Tabelas criadas!")
     yield
     # aqui poderia fechar conexões, limpar cache, etc.
 
@@ -43,6 +49,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+print("CORS configurado!")
 
 # -------------------------------------------------------------------
 # Handlers globais de exceções
@@ -155,7 +162,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     """
     Captura quaisquer exceções não tratadas explicitamente acima.
     """
-    log.error("Erro interno não tratado:\n" + "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
+    #log.error("Erro interno não tratado:\n" + "".join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
 
     return JSONResponse(
         status_code=500,
@@ -171,5 +178,6 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 # -------------------------------------------------------------------
 app.include_router(usuario_router)
 app.include_router(perfil_router)
+print("Rotas registradas!")
 
-log.info("Aplicação Iniciada!")
+#log.info("Aplicação Iniciada!")
